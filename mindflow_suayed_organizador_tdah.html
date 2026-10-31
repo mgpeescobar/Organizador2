@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindFlow SUAYED - Organizador Neurodivergente</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+        }
+        /* Estilos de alto contraste y temas para débil visual */
+        html.light {
+            --bg-main: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --border-color: #cbd5e1;
+        }
+        html.warm {
+            --bg-main: #fefcbf;
+            --card-bg: #fffbeb;
+            --text-main: #1c1917;
+            --border-color: #fde68a;
+        }
+        html.dark {
+            --bg-main: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --border-color: #334155;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100 min-h-screen pb-12 transition-colors">
+
+    <!-- HEADER & BARRA SUPERIOR DE HERRAMIENTAS -->
+    <header class="bg-white dark:bg-slate-800 border-b-4 border-indigo-600 sticky top-0 z-40 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            
+            <!-- Título / Logotipo -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-black text-xl shadow-md">
+                    🧠
+                </div>
+                <div>
+                    <h1 class="text-xl font-black tracking-tight text-slate-900 dark:text-white leading-none">MindFlow SUAYED</h1>
+                    <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400">Sociología | Organizador TDAH</span>
+                </div>
+            </div>
+
+            <!-- Navegación por pestañas (Mi Día vs Estudio) -->
+            <div class="flex items-center gap-2 bg-slate-200 dark:bg-slate-700 p-1.5 rounded-2xl">
+                <button id="nav-routine-btn" onclick="switchView('routine')" class="px-4 py-2 rounded-xl text-xs font-black transition flex items-center gap-2 bg-indigo-600 text-white shadow-md">
+                    <i class="fa-solid fa-sun text-amber-300"></i> ☀️ Mi Rutina por Horas
+                </button>
+                <button id="nav-study-btn" onclick="switchView('study')" class="px-4 py-2 rounded-xl text-xs font-black transition flex items-center gap-2 bg-slate-300 dark:bg-slate-600 text-slate-800 dark:text-slate-100 hover:bg-slate-400">
+                    <i class="fa-solid fa-graduation-cap text-indigo-400"></i> 📚 Mi Estudio SUAYED
+                </button>
+            </div>
+
+            <!-- Botones de Tema, Ruido Blanco & Ayuda -->
+            <div class="flex items-center gap-2">
+                <button onclick="toggleWhiteNoise()" id="white-noise-btn" class="px-3 py-2 bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-200 rounded-xl text-xs font-bold hover:bg-purple-200 border border-purple-300 dark:border-purple-700 flex items-center gap-1.5">
+                    <i class="fa-solid fa-headphones"></i> Ruido Blanco
+                </button>
+                <select onchange="setTheme(this.value)" class="bg-slate-100 dark:bg-slate-700 font-bold text-xs p-2 rounded-xl border-2 border-slate-300 dark:border-slate-600">
+                    <option value="light">☀️ Claro Contraste</option>
+                    <option value="warm">🍦 Cálido Suave</option>
+                    <option value="dark">🌙 Oscuro Alto Contraste</option>
+                </select>
+                <button onclick="toggleGuideModal()" class="px-3 py-2 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-bold hover:bg-slate-300">
+                    <i class="fa-solid fa-circle-question text-indigo-500"></i> Ayuda
+                </button>
+            </div>
+        </div>
+
+        <!-- BARRA POMODORO PERSONALIZABLE CON ALARMA Y RECURSOS -->
+        <div class="bg-indigo-50 dark:bg-slate-900 border-t border-indigo-100 dark:border-slate-800 px-4 py-2.5">
+            <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+                
+                <!-- Temporizador Pomodoro -->
+                <div class="flex items-center gap-3 bg-white dark:bg-slate-800 px-4 py-1.5 rounded-2xl border-2 border-indigo-300 dark:border-slate-700 shadow-sm">
+                    <i class="fa-solid fa-clock-rotate-left text-indigo-600 dark:text-indigo-400 text-lg"></i>
+                    <div class="font-mono text-2xl font-black tracking-tight" id="timer-display">25:00</div>
+                    
+                    <div class="flex items-center gap-1">
+                        <button onclick="toggleTimer()" id="timer-start-btn" class="px-3 py-1 bg-emerald-600 text-white rounded-xl text-xs font-black hover:bg-emerald-700 shadow">
+                            ▶️ Iniciar
+                        </button>
+                        <button onclick="resetTimer()" class="px-2 py-1 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold hover:bg-slate-300">
+                            🔄 Restablecer
+                        </button>
+                    </div>
+
+                    <!-- Minutos editables -->
+                    <div class="flex items-center gap-1 border-l-2 border-slate-200 dark:border-slate-700 pl-3">
+                        <button onclick="setTimerMinutes(5)" class="px-2 py-1 bg-indigo-100 dark:bg-slate-700 text-indigo-800 dark:text-indigo-300 rounded-lg text-xs font-black">5m</button>
+                        <button onclick="setTimerMinutes(10)" class="px-2 py-1 bg-indigo-100 dark:bg-slate-700 text-indigo-800 dark:text-indigo-300 rounded-lg text-xs font-black">10m</button>
+                        <button onclick="setTimerMinutes(25)" class="px-2 py-1 bg-indigo-100 dark:bg-slate-700 text-indigo-800 dark:text-indigo-300 rounded-lg text-xs font-black">25m</button>
+                        
+                        <form onsubmit="customTimerSubmit(event)" class="flex items-center gap-1 ml-1">
+                            <input type="number" id="custom-minutes-input" min="1" max="180" placeholder="Min" class="w-12 px-2 py-1 text-xs font-black rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-center">
+                            <button type="submit" class="px-2 py-1 bg-indigo-600 text-white rounded-lg text-xs font-black">Fijar</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Botones Anti-Procrastinación y Puntos XP -->
+                <div class="flex items-center gap-3">
+                    <button onclick="triggerAntiProcrastinationEmergency()" class="px-4 py-2 bg-red-600 text-white rounded-2xl text-xs font-black shadow-lg hover:bg-red-700 animate-pulse flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation"></i> 🚨 ¡Estoy Procrastinando Haciendo Otra Cosa!
+                    </button>
+                    
+                    <div id="dopamine-counter" class="bg-amber-100 dark:bg-amber-950/60 border-2 border-amber-400 text-amber-900 dark:text-amber-200 px-3 py-1.5 rounded-2xl text-xs font-black flex items-center gap-2">
+                        <i class="fa-solid fa-bolt text-amber-500"></i> Puntos Dopamina: 0 XP
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="max-w-7xl mx-auto px-4 mt-6">
+
+        <!-- ==================== PESTAÑA 1: MI RUTINA POR HORAS ==================== -->
+        <section id="view-routine" class="space-y-6">
+            
+            <!-- Banner de Bienvenida sin Sobrecarga -->
+            <div class="bg-gradient-to-r from-amber-500 to-indigo-600 text-white p-6 rounded-3xl shadow-xl flex flex-wrap items-center justify-between gap-4">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-2xl font-black">☀️ Tu Horario Diario Flexible</h2>
+                        <span class="text-[10px] font-black bg-white/20 px-2.5 py-1 rounded-full text-white">Nivel de Energía:</span>
+                        <select onchange="setEnergyLevel(this.value)" id="energy-selector" class="bg-amber-400 text-slate-950 font-black text-xs px-2 py-1 rounded-xl border-none">
+                            <option value="high">⚡ Energía Alta</option>
+                            <option value="medium" selected>🔋 Energía Normal</option>
+                            <option value="low">🪫 Energía Baja (Modo Suave)</option>
+                        </select>
+                    </div>
+                    <p class="text-xs font-bold text-amber-100 max-w-xl">
+                        Organiza tu día en bloques reales de tiempo. Ajusta o limpia las actividades según tu ritmo.
+                    </p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="toggleBrainDumpModal()" class="px-4 py-2.5 bg-purple-400 text-slate-950 rounded-2xl font-black text-xs shadow hover:bg-purple-300">
+                        🧠 Descarga Mental
+                    </button>
+                    <button onclick="toggleQuickDistributeModal()" class="px-4 py-2.5 bg-amber-300 text-slate-950 rounded-2xl font-black text-xs shadow hover:bg-amber-200">
+                        ✨ Acomodar mis Pendientes
+                    </button>
+                    <button onclick="addHourBefore()" class="px-3 py-2 bg-white text-indigo-900 rounded-2xl font-black text-xs shadow hover:bg-amber-50">
+                        + Hora Antes
+                    </button>
+                    <button onclick="addHourAfter()" class="px-3 py-2 bg-white text-indigo-900 rounded-2xl font-black text-xs shadow hover:bg-amber-50">
+                        + Hora Después
+                    </button>
+                    <button onclick="applyPresetRoutine()" class="px-4 py-2.5 bg-emerald-400 text-slate-900 rounded-2xl font-black text-xs shadow hover:bg-emerald-300">
+                        <i class="fa-solid fa-magic"></i> Cargar Rutina Coherente
+                    </button>
+                    <button onclick="clearHourlySchedule()" class="px-4 py-2.5 bg-rose-500 text-white rounded-2xl font-black text-xs shadow hover:bg-rose-600">
+                        <i class="fa-solid fa-broom"></i> 🧹 Vaciar Horas
+                    </button>
+                </div>
+            </div>
+
+            <!-- CRONOGRAMA EXCLUSIVO DE RUTINA POR HORAS -->
+            <div id="hourly-schedule-container" class="space-y-2"></div>
+
+        </section>
+
+        <!-- ==================== PESTAÑA 2: MI ESTUDIO SUAYED (MATRIZ & HERRAMIENTAS) ==================== -->
+        <section id="view-study" class="space-y-6 hidden">
+
+            <!-- Banner de Estudio y Accesos Rápido -->
+            <div class="bg-indigo-900 text-white p-6 rounded-3xl shadow-xl flex flex-wrap items-center justify-between gap-4 border-b-4 border-indigo-500">
+                <div>
+                    <h2 class="text-2xl font-black flex items-center gap-2">
+                        📚 Gestión de Entregas & Sociología SUAYED
+                    </h2>
+                    <p id="study-neuro-tip" class="text-xs font-bold text-indigo-200 max-w-xl mt-1">
+                        "Para la densidad de textos en Sociología (Marx, Weber, Durkheim), aplica la regla de 5 minutos: abre la lectura con la única meta de leer el primer párrafo."
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="openFocusMode()" class="px-4 py-2.5 bg-emerald-500 text-white rounded-2xl font-black text-xs shadow hover:bg-emerald-600">
+                        🎯 1 Solo Paso
+                    </button>
+                    <button onclick="toggleAiModal()" class="px-4 py-2.5 bg-purple-500 text-white rounded-2xl font-black text-xs shadow hover:bg-purple-600">
+                        ⚡ Descomponer con IA
+                    </button>
+                    <button onclick="toggleLearningModal()" class="px-4 py-2.5 bg-amber-400 text-slate-950 rounded-2xl font-black text-xs shadow hover:bg-amber-300">
+                        🧠 Laboratorio Feynman
+                    </button>
+                    <button onclick="rotateStudyTip()" class="px-3 py-2 bg-indigo-800 text-indigo-200 rounded-2xl font-bold text-xs hover:bg-indigo-700">
+                        💡 OTRO TIP
+                    </button>
+                </div>
+            </div>
+
+            <!-- Formulario de Nueva Tarea de Sociología -->
+            <form onsubmit="addNewStudyTask(event)" class="bg-white dark:bg-slate-800 p-4 rounded-3xl border-2 border-slate-200 dark:border-slate-700 shadow-md flex flex-wrap items-center gap-3">
+                <input type="text" id="task-title-input" placeholder="Nombre de la entrega / lectura (Ej: Ficha de lectura Durkheim)..." required class="flex-grow min-w-[240px] px-4 py-2.5 rounded-2xl border-2 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs font-bold text-slate-900 dark:text-slate-100">
+                
+                <input type="text" id="task-subject-input" placeholder="Materia (Ej: Teoría Sociológica II)" class="w-48 px-4 py-2.5 rounded-2xl border-2 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs font-bold text-slate-900 dark:text-slate-100">
+
+                <select id="task-category-select" class="px-3 py-2.5 rounded-2xl border-2 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs font-black">
+                    <option value="do">🔴 Hazlo YA (Urgente e Importante)</option>
+                    <option value="schedule">🔵 Agéndalo (Importante, No Urgente)</option>
+                    <option value="delegate">🟡 Micro-Pasos (Poco Importante, Urgente)</option>
+                    <option value="eliminate">🟢 Eliminar / Posponer</option>
+                </select>
+
+                <button type="submit" class="px-5 py-2.5 bg-indigo-600 text-white rounded-2xl font-black text-xs shadow hover:bg-indigo-700">
+                    + Añadir a Matriz
+                </button>
+            </form>
+
+            <!-- Matriz de Eisenhower 2x2 Amplia Exclusiva de Estudio -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <!-- Cuadrante 1: HACES HOY -->
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-3xl border-4 border-red-500 shadow-lg space-y-3">
+                    <div class="flex items-center justify-between border-b border-red-100 dark:border-red-950 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                            <h3 class="font-black text-xs text-red-600 dark:text-red-400 uppercase">1. Hazlo YA (Urgente e Importante)</h3>
+                        </div>
+                        <span id="badge-q1" class="px-2 py-0.5 bg-red-100 dark:bg-red-950 text-red-800 dark:text-red-300 text-[10px] font-black rounded-lg">0</span>
+                    </div>
+                    <div id="quadrant-do" class="space-y-2 min-h-[120px]"></div>
+                </div>
+
+                <!-- Cuadrante 2: AGENDAS -->
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-3xl border-4 border-blue-500 shadow-lg space-y-3">
+                    <div class="flex items-center justify-between border-b border-blue-100 dark:border-blue-950 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-blue-500"></span>
+                            <h3 class="font-black text-xs text-blue-600 dark:text-blue-400 uppercase">2. Agéndalo (Importante, No Urgente)</h3>
+                        </div>
+                        <span id="badge-q2" class="px-2 py-0.5 bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 text-[10px] font-black rounded-lg">0</span>
+                    </div>
+                    <div id="quadrant-schedule" class="space-y-2 min-h-[120px]"></div>
+                </div>
+
+                <!-- Cuadrante 3: MICRO-PASOS -->
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-3xl border-4 border-amber-500 shadow-lg space-y-3">
+                    <div class="flex items-center justify-between border-b border-amber-100 dark:border-amber-950 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                            <h3 class="font-black text-xs text-amber-600 dark:text-amber-400 uppercase">3. Micro-Pasos (Rápido / Trámites)</h3>
+                        </div>
+                        <span id="badge-q3" class="px-2 py-0.5 bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 text-[10px] font-black rounded-lg">0</span>
+                    </div>
+                    <div id="quadrant-delegate" class="space-y-2 min-h-[120px]"></div>
+                </div>
+
+                <!-- Cuadrante 4: POSPONER / OPCIONAL -->
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-3xl border-4 border-slate-400 shadow-lg space-y-3">
+                    <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-slate-400"></span>
+                            <h3 class="font-black text-xs text-slate-600 dark:text-slate-400 uppercase">4. Posponer / Opcional</h3>
+                        </div>
+                        <span id="badge-q4" class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-300 text-[10px] font-black rounded-lg">0</span>
+                    </div>
+                    <div id="quadrant-eliminate" class="space-y-2 min-h-[120px]"></div>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- MODALES Y VENTANAS EMERGENTES -->
+    
+    <!-- Modal Modo 1 Solo Paso -->
+    <div id="focus-modal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 max-w-md w-full p-6 rounded-3xl border-4 border-emerald-500 shadow-2xl space-y-4 text-center">
+            <h3 class="font-black text-lg text-emerald-600 dark:text-emerald-400">🎯 Modo 1 Solo Paso</h3>
+            <div id="focus-content" class="space-y-2"></div>
+            <div class="flex items-center justify-center gap-2 pt-2">
+                <button onclick="markFocusTaskComplete()" class="px-4 py-2.5 bg-emerald-600 text-white font-black text-xs rounded-2xl shadow hover:bg-emerald-700">
+                    ✅ ¡Hecho! Siguiente Paso
+                </button>
+                <button onclick="closeFocusMode()" class="px-4 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs rounded-2xl">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Descomponer con IA -->
+    <div id="ai-modal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 max-w-lg w-full p-6 rounded-3xl border-4 border-purple-500 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b pb-3">
+                <h3 class="font-black text-lg text-purple-600 dark:text-purple-400">✨ Descomponer Entrega Compleja</h3>
+                <button onclick="toggleAiModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+            </div>
+            <p class="text-xs font-semibold text-slate-600 dark:text-slate-300">¿Qué entrega o ensayo te causa parálisis? Escribe el tema para fragmentarlo en tareas de 5 minutos.</p>
+            <input type="text" id="ai-task-input" placeholder="Ej: Ensayo sobre el materialismo histórico de Marx" class="w-full px-4 py-3 rounded-2xl border-2 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 font-bold text-xs">
+            <button onclick="breakdownTaskWithAI()" class="w-full py-3 bg-purple-600 text-white font-black text-xs rounded-2xl shadow hover:bg-purple-700">
+                ⚡ Generar Micro-Pasos
+            </button>
+            <div id="ai-results" class="hidden"></div>
+        </div>
+    </div>
+
+    <!-- Modal Aprender de Verdad (Feynman) -->
+    <div id="learning-modal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 max-w-lg w-full p-6 rounded-3xl border-4 border-amber-400 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b pb-3">
+                <h3 class="font-black text-lg text-amber-600 dark:text-amber-400">🧠 Laboratorio de Aprendizaje Activo</h3>
+                <button onclick="toggleLearningModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+            </div>
+            <p class="text-xs font-semibold text-slate-600 dark:text-slate-300">Escribe el autor o concepto teórico que leíste para aterrizarlo en tu memoria a largo plazo:</p>
+            <input type="text" id="feynman-concept-input" placeholder="Ej: Anomia en Durkheim / Hegemonía en Gramsci" class="w-full px-4 py-3 rounded-2xl border-2 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 font-bold text-xs">
+            <div class="flex gap-2">
+                <button onclick="generateFeynmanExplanation()" class="flex-1 py-3 bg-amber-500 text-slate-950 font-black text-xs rounded-2xl shadow hover:bg-amber-400">
+                    🍏 Explícamelo en Manzanitas
+                </button>
+                <button onclick="generateFeynmanQuiz()" class="flex-1 py-3 bg-purple-600 text-white font-black text-xs rounded-2xl shadow hover:bg-purple-700">
+                    📝 Ponme un Caso Práctico
+                </button>
+            </div>
+            <div id="learning-results" class="hidden"></div>
+        </div>
+    </div>
+
+    <!-- Modal Emergencia Procrastinación -->
+    <div id="procrastination-modal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 max-w-md w-full p-6 rounded-3xl border-4 border-red-600 shadow-2xl space-y-4 text-center">
+            <div class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-2xl mx-auto">
+                🚨
+            </div>
+            <h3 class="font-black text-lg text-red-600 dark:text-red-400">¡Brake de Emergencia Neurodivergente!</h3>
+            <p class="text-xs text-slate-600 dark:text-slate-300 font-semibold leading-relaxed">
+                Estás atrapado en un bucle de <strong>procrastinación productiva</strong>. Tu cerebro busca dopamina fácil. No intentes terminar toda tu tarea ahora.
+            </p>
+            <div class="bg-red-50 dark:bg-slate-900 p-3 rounded-2xl border border-red-200 text-left text-xs font-bold text-red-900 dark:text-red-200">
+                🎯 Tu única meta los próximos 5 minutos es: abrir la plataforma SUAYED y leer sólo las primeras 3 líneas del PDF.
+            </div>
+            <div class="flex flex-col gap-2 pt-2">
+                <button onclick="startEmergencyMicroTask()" class="w-full py-3 bg-red-600 text-white font-black text-xs rounded-2xl shadow hover:bg-red-700">
+                    ⏱️ Iniciar Micro-Pomodoro de 5 Minutos
+                </button>
+                <button onclick="closeProcrastinationModal()" class="w-full py-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-2xl">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ayuda -->
+    <div id="guide-modal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 max-w-lg w-full p-6 rounded-3xl border-4 border-indigo-500 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b pb-3">
+                <h3 class="font-black text-lg text-indigo-600 dark:text-indigo-400">❓ Guía & Mis Datos</h3>
+                <button onclick="toggleGuideModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+            </div>
+            <div class="space-y-3 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <p><strong>💾 ¿Se guardan mis avances?</strong><br>Sí, todo se guarda automáticamente en este navegador (LocalStorage). Si cierras la ventana o apagas tu compu, tus tareas seguirán aquí.</p>
+                <p><strong>🎯 ¿Cómo usar el Modo 1 Solo Paso?</strong><br>Es para cuando la Matriz entera te abrume. Muestra únicamente una tarea para que tu cerebro no sufra parálisis por análisis.</p>
+                <p><strong>⏱️ Pomodoro Personalizable:</strong><br>Puedes escribir el tiempo exacto que quieras (ej: 3 min) y presionar "Fijar". Sonará un tono auditivo al terminar.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Acomodar Pendientes Rápidos -->
+    <div id="distribute-modal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 max-w-lg w-full p-6 rounded-3xl border-4 border-amber-400 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b pb-3">
+                <h3 class="font-black text-lg text-amber-600 dark:text-amber-400">✨ Acomodar mis Pendientes en el Día</h3>
+                <button onclick="toggleQuickDistributeModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+            </div>
+            <p class="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                Escribe o pega tus pendientes (uno por línea o separados por comas). La app los colocará en tus bloques de hora automáticamente.
+            </p>
+            <textarea id="quick-tasks-input" rows="4" placeholder="Ej: Leer a Durkheim 30 min&#10;Ir por la comida&#10;Responder foro de Sociología&#10;Lavar trastes" class="w-full px-4 py-3 rounded-2xl border-2 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 font-bold text-xs"></textarea>
+            <button onclick="distributeTasksIntoSchedule()" class="w-full py-3 bg-amber-400 text-slate-950 font-black text-xs rounded-2xl shadow hover:bg-amber-300">
+                ⚡ Distribuir en el Horario
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Descarga Mental (Brain Dump) -->
+    <div id="braindump-modal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 max-w-lg w-full p-6 rounded-3xl border-4 border-purple-500 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b pb-3">
+                <h3 class="font-black text-lg text-purple-600 dark:text-purple-400">🧠 Descarga Mental (Brain Dump)</h3>
+                <button onclick="toggleBrainDumpModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+            </div>
+            <p class="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                ¿Te acordaste de un pendiente aleatorio mientras estudias (ej: pagar la luz, mandar un mensaje)? Escríbelo aquí para sacarlo de tu cabeza y continuar enfocado.
+            </p>
+            <form onsubmit="addBrainDumpItem(event)" class="flex gap-2">
+                <input type="text" id="braindump-input" placeholder="Ej: Comprar croquetas para el perro..." class="flex-grow px-4 py-2.5 rounded-2xl border-2 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs font-bold text-slate-900 dark:text-slate-100">
+                <button type="submit" class="px-4 py-2.5 bg-purple-600 text-white font-black text-xs rounded-2xl shadow hover:bg-purple-700">Anotar</button>
+            </form>
+            <div id="braindump-list" class="space-y-2 max-h-48 overflow-y-auto pt-2"></div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT PRINCIPAL -->
+    <script>
+        // VARIABLES GLOBALES DE ESTADO & INICIALIZACIÓN
+        let timerSeconds = 25 * 60;
+        let timerInterval = null;
+        let timerIsRunning = false;
+
+        let dopamineScore = parseInt(localStorage.getItem('mindflow_dopamine')) || 0;
+        let completedTodayCount = parseInt(localStorage.getItem('mindflow_completed_count')) || 0;
+        let currentFocusTaskId = null;
+        let isWhiteNoisePlaying = false;
+        let whiteNoiseAudioCtx = null;
+        let whiteNoiseNode = null;
+
+        let brainDumpItems = JSON.parse(localStorage.getItem('mindflow_braindump')) || [];
+
+        const defaultHoursList = [
+            "07:00 AM - 08:00 AM",
+            "08:00 AM - 09:00 AM",
+            "09:00 AM - 10:00 AM",
+            "10:00 AM - 11:00 AM",
+            "11:00 AM - 12:00 PM",
+            "12:00 PM - 01:00 PM",
+            "01:00 PM - 02:00 PM",
+            "02:00 PM - 03:00 PM",
+            "03:00 PM - 04:00 PM",
+            "04:00 PM - 05:00 PM",
+            "05:00 PM - 06:00 PM",
+            "06:00 PM - 07:00 PM",
+            "07:00 PM - 08:00 PM",
+            "08:00 PM - 09:00 PM",
+            "09:00 PM - 10:00 PM",
+            "10:00 PM - 11:00 PM"
+        ];
+
+        let hourlySchedule = JSON.parse(localStorage.getItem('mindflow_hourly_schedule')) || defaultHoursList.map(h => ({
+            time: h,
+            task: "",
+            completed: false
+        }));
+
+        let tasks = JSON.parse(localStorage.getItem('mindflow_sociologia_tasks')) || [
+            { id: 1, title: "Ficha de lectura: Max Weber y los tipos de dominación", subject: "Teoría Sociológica II", category: "do", completed: false, created: Date.now() },
+            { id: 2, title: "Responder foro de discusión sobre Durkheim", subject: "Sociología Clásica", category: "schedule", completed: false, created: Date.now() }
+        ];
+
+        // FUNCIONES AUXILIARES PRINCIPALES
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function updateDopamineUI() {
+            const scoreEl = document.getElementById('dopamine-counter');
+            if (scoreEl) scoreEl.innerHTML = `<i class="fa-solid fa-bolt text-amber-500"></i> Puntos Dopamina: ${dopamineScore} XP`;
+            localStorage.setItem('mindflow_dopamine', dopamineScore);
+            localStorage.setItem('mindflow_completed_count', completedTodayCount);
+        }
+
+        function triggerDopamineEffect() {
+            updateDopamineUI();
+        }
+
+        // FUNCIONES DEL TEMPORIZADOR POMODORO
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timerSeconds / 60);
+            const seconds = timerSeconds % 60;
+            const displayEl = document.getElementById('timer-display');
+            if (displayEl) {
+                displayEl.innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }
+
+        function toggleTimer() {
+            const startBtn = document.getElementById('timer-start-btn');
+            if (timerIsRunning) {
+                clearInterval(timerInterval);
+                timerIsRunning = false;
+                if (startBtn) startBtn.innerText = '▶️ Iniciar';
+            } else {
+                timerIsRunning = true;
+                if (startBtn) startBtn.innerText = '⏸️ Pausar';
+                timerInterval = setInterval(() => {
+                    if (timerSeconds > 0) {
+                        timerSeconds--;
+                        updateTimerDisplay();
+                    } else {
+                        clearInterval(timerInterval);
+                        timerIsRunning = false;
+                        if (startBtn) startBtn.innerText = '▶️ Iniciar';
+                        playAlarmSound();
+                        dopamineScore += 30;
+                        triggerDopamineEffect();
+                    }
+                }, 1000);
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerIsRunning = false;
+            const startBtn = document.getElementById('timer-start-btn');
+            if (startBtn) startBtn.innerText = '▶️ Iniciar';
+            timerSeconds = 25 * 60;
+            updateTimerDisplay();
+        }
+
+        function setTimerMinutes(mins) {
+            clearInterval(timerInterval);
+            timerIsRunning = false;
+            const startBtn = document.getElementById('timer-start-btn');
+            if (startBtn) startBtn.innerText = '▶️ Iniciar';
+            timerSeconds = Math.max(1, parseInt(mins) || 1) * 60;
+            updateTimerDisplay();
+        }
+
+        function customTimerSubmit(event) {
+            event.preventDefault();
+            const input = document.getElementById('custom-minutes-input');
+            if (input && input.value) {
+                setTimerMinutes(input.value);
+            }
+        }
+
+        // RENDERIZADO DEL CRONOGRAMA POR HORAS
+        function renderHourlySchedule() {
+            const container = document.getElementById('hourly-schedule-container');
+            if (!container) return;
+
+            container.innerHTML = '';
+            hourlySchedule.forEach((item, index) => {
+                const row = document.createElement('div');
+                row.className = `p-3 rounded-2xl border-2 flex items-center justify-between gap-3 transition ${
+                    item.completed 
+                    ? 'bg-slate-100 dark:bg-slate-900 border-slate-300 dark:border-slate-800 opacity-60' 
+                    : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm'
+                }`;
+
+                row.innerHTML = `
+                    <div class="flex items-center gap-3 flex-grow overflow-hidden">
+                        <button onclick="toggleHourComplete(${index})" class="text-base flex-shrink-0 ${item.completed ? 'text-emerald-500' : 'text-slate-400 hover:text-emerald-500'}">
+                            <i class="${item.completed ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'}"></i>
+                        </button>
+                        <span class="text-xs font-black text-indigo-600 dark:text-indigo-400 whitespace-nowrap min-w-[130px]">
+                            ${escapeHtml(item.time)}
+                        </span>
+                        <input type="text" value="${escapeHtml(item.task)}" onchange="updateHourTask(${index}, this.value)" placeholder="Haz clic para escribir tu plan..." class="w-full bg-transparent text-xs font-bold border-b border-transparent hover:border-slate-300 focus:border-indigo-500 focus:outline-none ${item.completed ? 'line-through text-slate-400' : 'text-slate-900 dark:text-slate-100'}">
+                    </div>
+                    <button onclick="deleteHourRow(${index})" class="text-slate-400 hover:text-red-500 text-xs p-1 flex-shrink-0">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                `;
+                container.appendChild(row);
+            });
+
+            localStorage.setItem('mindflow_hourly_schedule', JSON.stringify(hourlySchedule));
+        }
+
+        function toggleHourComplete(index) {
+            if (hourlySchedule[index]) {
+                hourlySchedule[index].completed = !hourlySchedule[index].completed;
+                if (hourlySchedule[index].completed) {
+                    dopamineScore += 20;
+                    triggerDopamineEffect();
+                }
+                renderHourlySchedule();
+            }
+        }
+
+        function updateHourTask(index, value) {
+            if (hourlySchedule[index]) {
+                hourlySchedule[index].task = value;
+                localStorage.setItem('mindflow_hourly_schedule', JSON.stringify(hourlySchedule));
+            }
+        }
+
+        function deleteHourRow(index) {
+            hourlySchedule.splice(index, 1);
+            renderHourlySchedule();
+        }
+
+        // ALARMA SONORA CON WEB AUDIO API
+        function playAlarmSound() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const ctx = new AudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+                osc.frequency.setValueAtTime(880, ctx.currentTime + 0.15); // A5
+                
+                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.8);
+                
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                
+                osc.start();
+                osc.stop(ctx.currentTime + 0.8);
+            } catch (e) {
+                console.log("Audio alert playback error:", e);
+            }
+        }
+
+        // FUNCIÓN AUXILIAR PARA CÁLCULO INTELIGENTE DE HORAS
+        function parseHourString(str) {
+            const match = str.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+            if (!match) return null;
+            let hours = parseInt(match[1]);
+            let mins = parseInt(match[2]);
+            let period = match[3].toUpperCase();
+            return { hours, mins, period };
+        }
+
+        function formatHourString(hours, mins, period) {
+            const hStr = hours.toString().padStart(2, '0');
+            const mStr = mins.toString().padStart(2, '0');
+            return `${hStr}:${mStr} ${period}`;
+        }
+
+        function addHourBefore() {
+            if (hourlySchedule.length === 0) {
+                hourlySchedule.unshift({ time: "07:00 AM - 08:00 AM", task: "", completed: false });
+                renderHourlySchedule();
+                return;
+            }
+
+            const firstObj = parseHourString(hourlySchedule[0].time);
+            if (!firstObj) {
+                hourlySchedule.unshift({ time: "06:00 AM - 07:00 AM", task: "", completed: false });
+            } else {
+                let endHours = firstObj.hours;
+                let endPeriod = firstObj.period;
+                let endMins = firstObj.mins;
+
+                let startHours = endHours - 1;
+                let startPeriod = endPeriod;
+
+                if (startHours === 0) {
+                    startHours = 12;
+                } else if (startHours === 11 && endHours === 12) {
+                    startPeriod = endPeriod === 'AM' ? 'PM' : 'AM';
+                }
+
+                const newTimeStr = `${formatHourString(startHours, endMins, startPeriod)} - ${formatHourString(endHours, endMins, endPeriod)}`;
+                hourlySchedule.unshift({ time: newTimeStr, task: "", completed: false });
+            }
+            renderHourlySchedule();
+        }
+
+        function addHourAfter() {
+            if (hourlySchedule.length === 0) {
+                hourlySchedule.push({ time: "07:00 AM - 08:00 AM", task: "", completed: false });
+                renderHourlySchedule();
+                return;
+            }
+
+            const lastItem = hourlySchedule[hourlySchedule.length - 1];
+            const matches = [...lastItem.time.matchAll(/(\d{1,2}):(\d{2})\s*(AM|PM)/gi)];
+            const lastObj = matches.length > 1 ? parseHourString(matches[1][0]) : parseHourString(matches[0][0]);
+
+            if (!lastObj) {
+                hourlySchedule.push({ time: "11:00 PM - 12:00 AM", task: "", completed: false });
+            } else {
+                let startHours = lastObj.hours;
+                let startPeriod = lastObj.period;
+                let startMins = lastObj.mins;
+
+                let endHours = startHours + 1;
+                let endPeriod = startPeriod;
+
+                if (endHours === 12) {
+                    endPeriod = startPeriod === 'AM' ? 'PM' : 'AM';
+                } else if (endHours === 13) {
+                    endHours = 1;
+                }
+
+                const newTimeStr = `${formatHourString(startHours, startMins, startPeriod)} - ${formatHourString(endHours, startMins, endPeriod)}`;
+                hourlySchedule.push({ time: newTimeStr, task: "", completed: false });
+            }
+            renderHourlySchedule();
+        }
+
+        function applyPresetRoutine() {
+            hourlySchedule.forEach((item) => {
+                const hourMatch = item.time.match(/^(\d{1,2}):\d{2}\s*(AM|PM)/i);
+                if (!hourMatch) return;
+                
+                let hourNum = parseInt(hourMatch[1]);
+                const period = hourMatch[2].toUpperCase();
+                
+                // Convertir a formato 24 hrs para evaluar correctamente la franja biológica
+                if (period === 'PM' && hourNum !== 12) hourNum += 12;
+                if (period === 'AM' && hourNum === 12) hourNum = 0;
+
+                // ASIGNACIÓN LÓGICA DE ACTIVIDADES SEGÚN HORA REAL DEL RELEO
+                if (hourNum >= 5 && hourNum < 9) {
+                    item.task = "☀️ Despertar + Luz natural + Agua (Sin celular 15 min)";
+                } else if (hourNum >= 9 && hourNum < 12) {
+                    item.task = "📚 Estudio SUAYED: Bloque de mayor enfoque intelectual";
+                } else if (hourNum >= 12 && hourNum < 14) {
+                    item.task = "🥣 Almuerzo / Comida y descanso sin pantallas";
+                } else if (hourNum >= 14 && hourNum < 17) {
+                    item.task = "✍️ Redacción de entregas SUAYED / Foros de plataforma";
+                } else if (hourNum >= 17 && hourNum < 19) {
+                    item.task = "🚶 Caminata de descarga dopaminérgica / Ejercicio suave";
+                } else if (hourNum >= 19 && hourNum < 21) {
+                    item.task = "🥗 Cena ligera y organización rápida de pendientes de mañana";
+                } else if (hourNum >= 21 || hourNum < 5) {
+                    item.task = "🌙 Desconexión: Reducir luces, apagar pantallas y preparar sueño";
+                }
+
+                item.completed = false;
+            });
+
+            renderHourlySchedule();
+        }
+
+        function clearHourlySchedule() {
+            // 1. Borrar directamente el almacenamiento de memoria del navegador
+            localStorage.removeItem('mindflow_hourly_schedule');
+            
+            // 2. Reconstruir el horario con una copia completamente limpia y nueva del listado original
+            hourlySchedule = defaultHoursList.map(h => ({
+                time: String(h),
+                task: "",
+                completed: false
+            }));
+
+            // 3. Sobrescribir en localStorage y renderizar en pantalla
+            localStorage.setItem('mindflow_hourly_schedule', JSON.stringify(hourlySchedule));
+            renderHourlySchedule();
+        }
+
+        // GENERADOR NATIVO DE RUIDO BLANCO (CONCENTRADOR AUDITIVO)
+        function toggleWhiteNoise() {
+            const btn = document.getElementById('white-noise-btn');
+            if (isWhiteNoisePlaying) {
+                if (whiteNoiseAudioCtx) whiteNoiseAudioCtx.close();
+                isWhiteNoisePlaying = false;
+                if (btn) btn.innerHTML = '<i class="fa-solid fa-headphones"></i> Ruido Blanco';
+            } else {
+                try {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    whiteNoiseAudioCtx = new AudioContext();
+                    const bufferSize = whiteNoiseAudioCtx.sampleRate * 2;
+                    const noiseBuffer = whiteNoiseAudioCtx.createBuffer(1, bufferSize, whiteNoiseAudioCtx.sampleRate);
+                    const output = noiseBuffer.getChannelData(0);
+                    
+                    for (let i = 0; i < bufferSize; i++) {
+                        output[i] = Math.random() * 2 - 1;
+                    }
+
+                    whiteNoiseNode = whiteNoiseAudioCtx.createBufferSource();
+                    whiteNoiseNode.buffer = noiseBuffer;
+                    whiteNoiseNode.loop = true;
+
+                    const gainNode = whiteNoiseAudioCtx.createGain();
+                    gainNode.gain.setValueAtTime(0.04, whiteNoiseAudioCtx.currentTime); // Volumen suave sin dañar oído
+
+                    whiteNoiseNode.connect(gainNode);
+                    gainNode.connect(whiteNoiseAudioCtx.destination);
+
+                    whiteNoiseNode.start();
+                    isWhiteNoisePlaying = true;
+                    if (btn) btn.innerHTML = '<i class="fa-solid fa-volume-high text-emerald-500 animate-pulse"></i> Pausar Ruido';
+                } catch (e) {
+                    console.log("No se pudo iniciar el ruido blanco:", e);
+                }
+            }
+        }
+
+        // GESTIÓN DE DESCARGA MENTAL (BRAIN DUMP)
+        function toggleBrainDumpModal() {
+            const modal = document.getElementById('braindump-modal');
+            if (modal) modal.classList.toggle('hidden');
+            renderBrainDumpList();
+        }
+
+        function addBrainDumpItem(e) {
+            e.preventDefault();
+            const input = document.getElementById('braindump-input');
+            if (!input || !input.value.trim()) return;
+
+            brainDumpItems.unshift({
+                id: Date.now(),
+                text: input.value.trim(),
+                done: false
+            });
+
+            input.value = '';
+            localStorage.setItem('mindflow_braindump', JSON.stringify(brainDumpItems));
+            renderBrainDumpList();
+        }
+
+        function renderBrainDumpList() {
+            const container = document.getElementById('braindump-list');
+            if (!container) return;
+
+            container.innerHTML = '';
+            brainDumpItems.forEach((item, index) => {
+                const el = document.createElement('div');
+                el.className = 'p-2.5 bg-slate-100 dark:bg-slate-900 rounded-xl flex items-center justify-between text-xs font-bold';
+                el.innerHTML = `
+                    <span>${escapeHtml(item.text)}</span>
+                    <button onclick="deleteBrainDumpItem(${index})" class="text-slate-400 hover:text-red-500">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                `;
+                container.appendChild(el);
+            });
+        }
+
+        function deleteBrainDumpItem(index) {
+            brainDumpItems.splice(index, 1);
+            localStorage.setItem('mindflow_braindump', JSON.stringify(brainDumpItems));
+            renderBrainDumpList();
+        }
+
+        function setEnergyLevel(level) {
+            const mainRoutine = document.getElementById('view-routine');
+            if (level === 'low') {
+                alert("🪫 Modo Energía Baja Activado: No intentes hacer todo hoy. Enfócate solo en 1 o 2 tareas y toma descansos más largos.");
+            }
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            renderTasks();
+        }
+
+        function switchView(viewName) {
+            const routineView = document.getElementById('view-routine');
+            const studyView = document.getElementById('view-study');
+            const routineBtn = document.getElementById('nav-routine-btn');
+            const studyBtn = document.getElementById('nav-study-btn');
+
+            if (viewName === 'routine') {
+                if (routineView) routineView.classList.remove('hidden');
+                if (studyView) studyView.classList.add('hidden');
+
+                if (routineBtn) routineBtn.className = 'px-4 py-2 rounded-xl text-xs font-black transition flex items-center gap-2 bg-indigo-600 text-white shadow-md';
+                if (studyBtn) studyBtn.className = 'px-4 py-2 rounded-xl text-xs font-black transition flex items-center gap-2 bg-slate-300 dark:bg-slate-600 text-slate-800 dark:text-slate-100 hover:bg-slate-400';
+            } else {
+                if (routineView) routineView.classList.add('hidden');
+                if (studyView) studyView.classList.remove('hidden');
+
+                if (routineBtn) routineBtn.className = 'px-4 py-2 rounded-xl text-xs font-black transition flex items-center gap-2 bg-slate-300 dark:bg-slate-600 text-slate-800 dark:text-slate-100 hover:bg-slate-400';
+                if (studyBtn) studyBtn.className = 'px-4 py-2 rounded-xl text-xs font-black transition flex items-center gap-2 bg-indigo-600 text-white shadow-md';
+            }
+        }
+
+        function setTheme(themeName) {
+            document.documentElement.className = themeName;
+            localStorage.setItem('mindflow_theme', themeName);
+        }
+
+        function triggerAntiProcrastinationEmergency() {
+            const modal = document.getElementById('procrastination-modal');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeProcrastinationModal() {
+            const modal = document.getElementById('procrastination-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function startEmergencyMicroTask() {
+            closeProcrastinationModal();
+            setTimerMinutes(5);
+            toggleTimer();
+        }
+
+        function toggleAiModal() {
+            const modal = document.getElementById('ai-modal');
+            if (modal) modal.classList.toggle('hidden');
+        }
+
+        function toggleLearningModal() {
+            const modal = document.getElementById('learning-modal');
+            if (modal) modal.classList.toggle('hidden');
+        }
+
+        function toggleGuideModal() {
+            const modal = document.getElementById('guide-modal');
+            if (modal) modal.classList.toggle('hidden');
+        }
+
+        function toggleQuickDistributeModal() {
+            const modal = document.getElementById('distribute-modal');
+            if (modal) modal.classList.toggle('hidden');
+        }
+
+        function distributeTasksIntoSchedule() {
+            const input = document.getElementById('quick-tasks-input');
+            if (!input || !input.value.trim()) return;
+
+            // Extraer líneas o ítems separados por comas
+            const text = input.value.trim();
+            const items = text.split(/[\n,]+/).map(i => i.trim()).filter(i => i.length > 0);
+
+            if (items.length === 0) return;
+
+            // Colocar cada ítem en las horas correspondientes
+            items.forEach((taskText, idx) => {
+                if (idx < hourlySchedule.length) {
+                    hourlySchedule[idx].task = taskText;
+                    hourlySchedule[idx].completed = false;
+                } else {
+                    // Si sobrepasa la cantidad de horas actual, agregar una hora después
+                    addHourAfter();
+                    hourlySchedule[hourlySchedule.length - 1].task = taskText;
+                }
+            });
+
+            renderHourlySchedule();
+            input.value = '';
+            toggleQuickDistributeModal();
+        }
+
+        function openFocusMode() {
+            const modal = document.getElementById('focus-modal');
+            const content = document.getElementById('focus-content');
+            const pendingTasks = tasks.filter(t => !t.completed);
+
+            if (!content || !modal) return;
+
+            if (pendingTasks.length === 0) {
+                content.innerHTML = `
+                    <div class="p-4 bg-emerald-50 dark:bg-emerald-950/50 rounded-2xl border border-emerald-300">
+                        <i class="fa-solid fa-trophy text-3xl text-emerald-500 mb-2"></i>
+                        <h4 class="font-black text-sm">¡Sin entregas pendientes!</h4>
+                        <p class="text-xs text-slate-500">Agrega tareas a la Matriz de Eisenhower o descansa sin culpa.</p>
+                    </div>
+                `;
+                currentFocusTaskId = null;
+            } else {
+                const currentTask = pendingTasks[0];
+                currentFocusTaskId = currentTask.id;
+                content.innerHTML = `
+                    <div class="p-5 bg-indigo-50 dark:bg-slate-800 rounded-2xl border-2 border-indigo-400 text-left space-y-2">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Paso Único Actual</span>
+                        <h4 class="font-black text-lg text-slate-900 dark:text-slate-100">${escapeHtml(currentTask.title)}</h4>
+                        ${currentTask.subject ? `<span class="text-xs font-bold text-slate-500 block">Materia: ${escapeHtml(currentTask.subject)}</span>` : ''}
+                        <p class="text-xs text-slate-600 dark:text-slate-300 pt-2 border-t border-indigo-200 dark:border-slate-700">
+                            ⏱️ Dedícale solo 5 minutos. Abre la lectura o escribe las primeras líneas.
+                        </p>
+                    </div>
+                `;
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeFocusMode() {
+            const modal = document.getElementById('focus-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function markFocusTaskComplete() {
+            if (currentFocusTaskId) {
+                toggleTaskComplete(currentFocusTaskId);
+            }
+            openFocusMode();
+        }
+
+        function breakdownTaskWithAI() {
+            const input = document.getElementById('ai-task-input');
+            const results = document.getElementById('ai-results');
+            if (!input || !results || !input.value.trim()) return;
+
+            const topic = input.value.trim();
+            results.classList.remove('hidden');
+            results.innerHTML = `
+                <div class="p-3 bg-indigo-50 dark:bg-slate-800 rounded-xl space-y-2">
+                    <h4 class="font-black text-xs text-indigo-900 dark:text-indigo-300">Micro-pasos sugeridos: "${escapeHtml(topic)}"</h4>
+                    <ul class="text-xs space-y-1.5 font-bold text-slate-700 dark:text-slate-300">
+                        <li class="flex items-center justify-between bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200 dark:border-slate-700">
+                            <span>1. Abrir plataforma SUAYED y descargar lectura</span>
+                            <button onclick="addAiStepToTasks('1. Descargar lectura de ${escapeHtml(topic)}')" class="text-indigo-600 hover:underline text-[11px] font-black">+ Añadir</button>
+                        </li>
+                        <li class="flex items-center justify-between bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200 dark:border-slate-700">
+                            <span>2. Leer resumen o primeros 2 párrafos por 5 minutos</span>
+                            <button onclick="addAiStepToTasks('2. Lectura 5 min: ${escapeHtml(topic)}')" class="text-indigo-600 hover:underline text-[11px] font-black">+ Añadir</button>
+                        </li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        function addAiStepToTasks(stepTitle) {
+            tasks.unshift({
+                id: Date.now(),
+                title: stepTitle,
+                subject: "Sociología SUAYED",
+                category: "do",
+                completed: false,
+                created: Date.now()
+            });
+            renderTasks();
+            toggleAiModal();
+        }
+
+        function generateFeynmanExplanation() {
+            const input = document.getElementById('feynman-concept-input');
+            const results = document.getElementById('learning-results');
+            if (!input || !results || !input.value.trim()) return;
+
+            const concept = input.value.trim();
+            results.classList.remove('hidden');
+            results.innerHTML = `
+                <div class="p-4 bg-amber-50 dark:bg-slate-800 rounded-2xl border-2 border-amber-300 space-y-2">
+                    <h4 class="font-black text-xs text-amber-900 dark:text-amber-300 uppercase">💡 Explicación en Manzanitas: "${escapeHtml(concept)}"</h4>
+                    <p class="text-xs text-slate-800 dark:text-slate-200 font-semibold leading-relaxed">
+                        Imagina que la sociedad es como un juego con reglas implícitas. Hablar de <strong>${escapeHtml(concept)}</strong> es analizar qué pasa cuando esas reglas se rompen o benefician a unos pocos. Explícalo con un ejemplo sencillo de tu colonia o vida diaria.
+                    </p>
+                </div>
+            `;
+        }
+
+        function generateFeynmanQuiz() {
+            const input = document.getElementById('feynman-concept-input');
+            const results = document.getElementById('learning-results');
+            if (!input || !results || !input.value.trim()) return;
+
+            const concept = input.value.trim();
+            results.classList.remove('hidden');
+            results.innerHTML = `
+                <div class="p-4 bg-purple-50 dark:bg-slate-800 rounded-2xl border-2 border-purple-300 space-y-2">
+                    <h4 class="font-black text-xs text-purple-900 dark:text-purple-300 uppercase">📝 Caso Práctico SUAYED: "${escapeHtml(concept)}"</h4>
+                    <p class="text-xs text-slate-800 dark:text-slate-200 font-semibold leading-relaxed">
+                        ¿Cómo aplicarías la noción de <em>${escapeHtml(concept)}</em> para explicar un problema social contemporáneo en México? Escribe 3 frases sencillas en tus notas.
+                    </p>
+                </div>
+            `;
+        }
+
+        const studyTips = [
+            "Para la densidad de textos en Sociología (Marx, Weber, Durkheim), aplica la regla de 5 minutos: abre la lectura con la única meta de leer el primer párrafo.",
+            "Si un texto teórico está muy abstracto, busca primero el contexto histórico en el que fue escrito el libro.",
+            "Usa fichas simples: 1) Concepto principal, 2) Ejemplo cotidiano en México.",
+            "No memorices al pie de la letra; intenta explicárselo a alguien más en lenguaje sencillo."
+        ];
+        let currentTipIndex = 0;
+
+        function rotateStudyTip() {
+            currentTipIndex = (currentTipIndex + 1) % studyTips.length;
+            const tipEl = document.getElementById('study-neuro-tip');
+            if (tipEl) tipEl.innerText = `"${studyTips[currentTipIndex]}"`;
+        }
+
+        // FUNCIONES DE MANEJO DE LA MATRIZ DE EISENHOWER
+        function renderTasks() {
+            const quadDo = document.getElementById('quadrant-do');
+            const quadSchedule = document.getElementById('quadrant-schedule');
+            const quadDelegate = document.getElementById('quadrant-delegate');
+            const quadEliminate = document.getElementById('quadrant-eliminate');
+
+            if (!quadDo || !quadSchedule || !quadDelegate || !quadEliminate) return;
+
+            quadDo.innerHTML = '';
+            quadSchedule.innerHTML = '';
+            quadDelegate.innerHTML = '';
+            quadEliminate.innerHTML = '';
+
+            let countDo = 0, countSchedule = 0, countDelegate = 0, countEliminate = 0;
+
+            tasks.forEach(task => {
+                const card = document.createElement('div');
+                card.className = `p-3 rounded-2xl border-2 flex items-center justify-between gap-3 transition ${
+                    task.completed 
+                    ? 'bg-slate-100 dark:bg-slate-900 border-slate-300 dark:border-slate-800 opacity-60' 
+                    : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 shadow-sm hover:border-indigo-400'
+                }`;
+
+                card.innerHTML = `
+                    <div class="flex items-start gap-2 flex-grow overflow-hidden">
+                        <button onclick="toggleTaskComplete(${task.id})" class="mt-0.5 text-base flex-shrink-0 ${task.completed ? 'text-emerald-500' : 'text-slate-400 hover:text-emerald-500'}">
+                            <i class="${task.completed ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'}"></i>
+                        </button>
+                        <div>
+                            <p class="text-xs font-bold leading-snug ${task.completed ? 'line-through text-slate-400' : 'text-slate-900 dark:text-slate-100'}">
+                                ${escapeHtml(task.title)}
+                            </p>
+                            ${task.subject ? `<span class="text-[10px] font-black text-indigo-600 dark:text-indigo-400">${escapeHtml(task.subject)}</span>` : ''}
+                        </div>
+                    </div>
+                    <button onclick="deleteTask(${task.id})" class="text-slate-400 hover:text-red-500 text-xs p-1 flex-shrink-0">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                `;
+
+                if (task.category === 'do') {
+                    quadDo.appendChild(card);
+                    if (!task.completed) countDo++;
+                } else if (task.category === 'schedule') {
+                    quadSchedule.appendChild(card);
+                    if (!task.completed) countSchedule++;
+                } else if (task.category === 'delegate') {
+                    quadDelegate.appendChild(card);
+                    if (!task.completed) countDelegate++;
+                } else if (task.category === 'eliminate') {
+                    quadEliminate.appendChild(card);
+                    if (!task.completed) countEliminate++;
+                }
+            });
+
+            const bq1 = document.getElementById('badge-q1');
+            const bq2 = document.getElementById('badge-q2');
+            const bq3 = document.getElementById('badge-q3');
+            const bq4 = document.getElementById('badge-q4');
+
+            if (bq1) bq1.innerText = countDo;
+            if (bq2) bq2.innerText = countSchedule;
+            if (bq3) bq3.innerText = countDelegate;
+            if (bq4) bq4.innerText = countEliminate;
+
+            localStorage.setItem('mindflow_sociologia_tasks', JSON.stringify(tasks));
+        }
+
+        function addNewStudyTask(event) {
+            event.preventDefault();
+            const titleInput = document.getElementById('task-title-input');
+            const subjectInput = document.getElementById('task-subject-input');
+            const categorySelect = document.getElementById('task-category-select');
+
+            if (!titleInput || !titleInput.value.trim()) return;
+
+            const newTask = {
+                id: Date.now(),
+                title: titleInput.value.trim(),
+                subject: subjectInput ? subjectInput.value.trim() : '',
+                category: categorySelect ? categorySelect.value : 'do',
+                completed: false,
+                created: Date.now()
+            };
+
+            tasks.unshift(newTask);
+            titleInput.value = '';
+            if (subjectInput) subjectInput.value = '';
+
+            renderTasks();
+        }
+
+        function toggleTaskComplete(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                if (task.completed) {
+                    dopamineScore += 25;
+                    completedTodayCount++;
+                    triggerDopamineEffect();
+                }
+                renderTasks();
+            }
+        }
+
+        window.onload = function() {
+            const savedTheme = localStorage.getItem('mindflow_theme') || 'light';
+            setTheme(savedTheme);
+            updateTimerDisplay();
+            updateDopamineUI();
+            renderHourlySchedule();
+            renderTasks();
+        };
+    </script>
+</body>
+</html>
